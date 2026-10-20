@@ -9,9 +9,8 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import StaticPool
 
-from app.main import app
 from app.database import Base, get_db
-from app.routers import auth, tasks as tasks_router
+from app.main import app
 
 test_engine = create_async_engine(
     "sqlite+aiosqlite:///:memory:",
@@ -45,7 +44,26 @@ async def client() -> AsyncClient:
         yield c
 
 
-async def token_for(client: AsyncClient, username: str = "taskuser") -> str:
-    await client.post("/auth/register", json={"username": username, "email": f"{username}@e.com", "password": "password123"})
-    resp = await client.post("/auth/login", data={"username": username, "password": "password123"})
-    return resp.json()["access_token"]
+@pytest.fixture
+def token_for():
+    async def create_token(client: AsyncClient, username: str = "taskuser") -> str:
+        response = await client.post(
+            "/auth/register",
+            json={
+                "username": username,
+                "email": f"{username}@e.com",
+                "password": "password123",
+            },
+        )
+        assert response.status_code == 201
+        response = await client.post(
+            "/auth/login",
+            data={
+                "username": username,
+                "password": "password123",
+            },
+        )
+        assert response.status_code == 200
+        return response.json()["access_token"]
+
+    return create_token

@@ -1,0 +1,14 @@
+
+
+# Local verification artifacts
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.db
+.env
+*.egg-info/
+.venv/
+build/
+dist/

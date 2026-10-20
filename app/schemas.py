@@ -2,15 +2,22 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 # --- User ---
 
+
 class UserCreate(BaseModel):
     username: str = Field(min_length=3, max_length=80)
-    email: str = Field(min_length=3, max_length=120)
-    password: str = Field(min_length=8, max_length=256)
+    email: EmailStr = Field(max_length=120)
+    password: str = Field(min_length=8, max_length=72)
+
+    @field_validator("password")
+    @classmethod
+    def password_bytes(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > 72:
+            raise ValueError("Password must not exceed 72 UTF-8 bytes")
+        return value
 
 
 class UserLogin(BaseModel):
@@ -28,6 +35,7 @@ class UserResponse(BaseModel):
 
 
 # --- Task ---
+
 
 class TaskCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
@@ -65,6 +73,7 @@ class TaskListResponse(BaseModel):
 
 # --- Auth ---
 
+
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = "bearer"  # noqa: S105 - OAuth2 scheme name
