@@ -1,13 +1,14 @@
 """Initial schema migration."""
 
-from datetime import datetime
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 
 revision = "initial"
 down_revision = None
 branch_labels = None
 depends_on = None
+
 
 def upgrade() -> None:
     op.create_table(
@@ -16,7 +17,12 @@ def upgrade() -> None:
         sa.Column("username", sa.String(length=80), nullable=False),
         sa.Column("email", sa.String(length=120), nullable=False),
         sa.Column("hashed_password", sa.String(length=256), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("username"),
         sa.UniqueConstraint("email"),
@@ -32,14 +38,25 @@ def upgrade() -> None:
         sa.Column("status", sa.String(length=20), nullable=False, server_default="pending"),
         sa.Column("priority", sa.String(length=20), nullable=False, server_default="medium"),
         sa.Column("owner_id", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(["owner_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_tasks_owner_id"), "tasks", ["owner_id"])
     op.create_index(op.f("ix_tasks_status"), "tasks", ["status"])
     op.create_index(op.f("ix_tasks_priority"), "tasks", ["priority"])
+
 
 def downgrade() -> None:
     op.drop_index(op.f("ix_tasks_priority"), table_name="tasks")

@@ -4,9 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "FastAPI Task Manager"
     app_version: str = "1.0.0"
@@ -14,7 +12,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/taskdb"
 
-    secret_key: str = "dev-secret-key-change-me-in-production-32b"
+    secret_key: str = "dev-secret-key-change-me-in-production-32b"  # noqa: S105 - local example, override SECRET_KEY
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 

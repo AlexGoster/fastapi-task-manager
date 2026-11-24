@@ -1,5 +1,6 @@
 """FastAPI Task Manager application entry point."""
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,7 +12,7 @@ from app.routers import auth, tasks
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     async with engine.begin() as conn:
         await conn.run_sync(lambda sync_conn: None)
     yield
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(tasks.router)
+
 
 @app.get("/health", tags=["health"])
 async def health() -> dict[str, str]:
